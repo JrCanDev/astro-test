@@ -1,0 +1,13 @@
+{
+  "name": "astro-infos-simples",
+  "version": "1.0.0",
+  "description": "Une petite application web pour donner des infos astronomiques simples (lever/coucher du soleil).",
+  "main": "index.html",
+  "scripts": {
+    "start": "node server.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+}

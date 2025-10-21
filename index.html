@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Astro Infos Simples 🚀</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f4f4f9;
+            color: #333;
+            text-align: center;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            color: #2c3e50;
+        }
+        .input-group {
+            margin-bottom: 15px;
+            display: flex;
+            justify-content: space-between;
+            gap: 10px;
+        }
+        input[type="number"], button {
+            padding: 10px;
+            border-radius: 4px;
+            border: 1px solid #ccc;
+            flex-grow: 1;
+        }
+        button {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        button:hover {
+            background-color: #2980b9;
+        }
+        #results {
+            margin-top: 20px;
+            text-align: left;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            background-color: #ecf0f1;
+        }
+        #results p {
+            margin: 5px 0;
+            padding-bottom: 5px;
+            border-bottom: 1px dotted #bdc3c7;
+        }
+        #results p strong {
+            color: #e74c3c;
+        }
+        .error {
+            color: #c0392b;
+            font-weight: bold;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>Infos Solaires ☀️</h1>
+        <p>Entrez la latitude et la longitude pour obtenir les infos du jour.</p>
+
+        <div class="input-group">
+            <input type="number" id="latitude" placeholder="Latitude (ex: 48.8566)" value="48.8566" step="0.0001">
+            <input type="number" id="longitude" placeholder="Longitude (ex: 2.3522)" value="2.3522" step="0.0001">
+        </div>
+        
+        <button onclick="getAstronomyInfo()">Obtenir les infos !</button>
+
+        <div id="results">
+            <p>Les résultats s'afficheront ici.</p>
+        </div>
+        <p class="error" id="error-message"></p>
+    </div>
+
+    <script>
+        /**
+         * Fonction pour récupérer les données astronomiques via l'API.
+         */
+        async function getAstronomyInfo() {
+            const latitude = document.getElementById('latitude').value;
+            const longitude = document.getElementById('longitude').value;
+            const resultsDiv = document.getElementById('results');
+            const errorDiv = document.getElementById('error-message');
+
+            // Réinitialiser les messages
+            resultsDiv.innerHTML = '<p>Chargement...</p>';
+            errorDiv.textContent = '';
+
+            // Validation simple des coordonnées
+            if (!latitude || !longitude || isNaN(latitude) || isNaN(longitude)) {
+                errorDiv.textContent = 'Veuillez entrer une latitude et une longitude valides.';
+                resultsDiv.innerHTML = '<p>Les résultats s\'afficheront ici.</p>';
+                return;
+            }
+
+            // URL de l'API (pas de clé nécessaire)
+            const apiUrl = `https://api.sunrise-sunset.org/json?lat=${latitude}&lng=${longitude}&formatted=0`;
+
+            try {
+                const response = await fetch(apiUrl);
+                const data = await response.json();
+
+                if (data.status === 'OK') {
+                    displayResults(data.results);
+                } else {
+                    errorDiv.textContent = 'Erreur lors de la récupération des données de l\'API.';
+                    resultsDiv.innerHTML = '<p>Les résultats s\'afficheront ici.</p>';
+                }
+
+            } catch (error) {
+                console.error('Erreur de réseau ou de l\'API:', error);
+                errorDiv.textContent = 'Une erreur est survenue lors de la communication avec le service.';
+                resultsDiv.innerHTML = '<p>Les résultats s\'afficheront ici.</p>';
+            }
+        }
+
+        /**
+         * Fonction pour afficher les résultats de l'API.
+         * @param {object} results - L'objet de résultats de l'API.
+         */
+        function displayResults(results) {
+            const resultsDiv = document.getElementById('results');
+
+            // Formatage UTC vers heure locale pour un affichage simple (peut être imprécis sans fuseau horaire explicite)
+            // L'API renvoie des dates/heures au format ISO 8601 en UTC.
+            const toLocalTime = (utcIsoTime) => {
+                // Créer un objet Date en se basant sur la chaîne ISO UTC
+                const date = new Date(utcIsoTime);
+                // Utiliser toLocaleTimeString pour afficher l'heure dans le fuseau horaire de l'utilisateur
+                return date.toLocaleTimeString('fr-FR', {
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    second: '2-digit',
+                    timeZoneName: 'short'
+                });
+            };
+
+            resultsDiv.innerHTML = `
+                <h2>Infos Astronomiques (UTC convertie en heure locale)</h2>
+                <p>Lever du Soleil 🌅 : <strong>${toLocalTime(results.sunrise)}</strong></p>
+                <p>Coucher du Soleil 🌇 : <strong>${toLocalTime(results.sunset)}</strong></p>
+                <p>Aube Nautique 🚢 : <strong>${toLocalTime(results.nautical_twilight_begin)}</strong></p>
+                <p>Crépuscule Nautique ⚓ : <strong>${toLocalTime(results.nautical_twilight_end)}</strong></p>
+                <p>Durée du Jour 📅 : <strong>${formatDayLength(results.day_length)}</strong></p>
+            `;
+        }
+
+        /**
+         * Fonction pour formater la durée du jour (en secondes) en heures:minutes:secondes.
+         * @param {number} totalSeconds - Durée du jour en secondes.
+         * @returns {string} - Durée formatée.
+         */
+        function formatDayLength(totalSeconds) {
+            const hours = Math.floor(totalSeconds / 3600);
+            const minutes = Math.floor((totalSeconds % 3600) / 60);
+            const seconds = totalSeconds % 60;
+            return `${hours}h ${minutes}min ${seconds}s`;
+        }
+
+        // Charger les infos par défaut au démarrage
+        document.addEventListener('DOMContentLoaded', () => {
+             getAstronomyInfo();
+        });
+    </script>
+
+</body>
+</html>
