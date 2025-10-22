@@ -81,5 +81,5 @@ networks:
     external: false
     name: lan_${NAME}
 
-  volumes: # <--- ADD THIS
-    postgres-data:
+volumes: # <--- ADD THIS
+  postgres-data:
