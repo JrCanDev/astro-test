@@ -15,7 +15,7 @@ services:
     networks:
       - lan
     volumes:
-      - ./postgres-data:/var/lib/postgresql/data
+      - postgres-data:/var/lib/postgresql/data
 
   phpmyadmin:
     image: adminer
@@ -80,3 +80,6 @@ networks:
   lan:
     external: false
     name: lan_${NAME}
+
+  volumes: # <--- ADD THIS
+    postgres-data:
