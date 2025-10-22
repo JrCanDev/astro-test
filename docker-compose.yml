@@ -42,7 +42,6 @@ services:
     container_name: ${NAME}
     build: 
       context: .
-      pull_policy: build
       dockerfile: Dockerfile
       args:
         GIT_URL: ${GIT_URL}
