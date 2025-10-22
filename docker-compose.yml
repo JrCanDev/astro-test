@@ -1,6 +1,4 @@
 # /apps/blog.silarhi.fr/docker-compose.yml
-version: '3'
-
 services:
 
   database:
