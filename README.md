@@ -8,4 +8,4 @@ Construct your image
 Run a contener
 ``docker run -d -p 8080:3000 --name astro_server astro-app``
 
-Visit http://localhost:8080 with a browser and enjoy
+Visit http://localhost:8080 with a browser and enjoy!
