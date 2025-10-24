@@ -49,8 +49,7 @@ fi
 
 echo "=== Rebuilding stack ==="
 docker compose pull
-# Or, if you have local Dockerfiles:
-# docker compose build --no-cache
+docker compose build --no-cache
 docker compose up -d
 
 echo "Deployment completed at $(date)"
