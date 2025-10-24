@@ -73,12 +73,53 @@
     <div class="container">
         <h1>Infos sur la durée du jour ☀️</h1>
         <h2>v1.06</h2>
-        <p>Entrez la latitude et la longitude pour obtenir les infos du jour (to be changed).</p>
+        <p>Entrez la latitude et la longitude pour obtenir les infos du jour ou utilisez la détection automatique.</p>
 
         <div class="input-group">
             <input type="number" id="latitude" placeholder="Latitude (ex: 48.8566)" value="48.8566" step="0.0001">
             <input type="number" id="longitude" placeholder="Longitude (ex: 2.3522)" value="2.3522" step="0.0001">
         </div>
+
+        <div style="margin-top:10px; display:flex; gap:10px; justify-content:center;">
+            <button type="button" onclick="detectPosition()">Auto-détecter ma position 📍</button>
+            <button type="button" onclick="getAstronomyInfo()">Obtenir avec les coordonnées</button>
+        </div>
+
+        <p id="geo-status" style="margin-top:8px;color:#555;"></p>
+
+        <script>
+            function detectPosition() {
+            const status = document.getElementById('geo-status');
+            const errorDiv = document.getElementById('error-message');
+            status.textContent = 'Détection en cours…';
+            errorDiv.textContent = '';
+
+            if (!navigator.geolocation) {
+                status.textContent = '';
+                errorDiv.textContent = 'Géolocalisation non supportée par votre navigateur.';
+                return;
+            }
+
+            navigator.geolocation.getCurrentPosition(
+                (position) => {
+                const lat = position.coords.latitude.toFixed(6);
+                const lon = position.coords.longitude.toFixed(6);
+                document.getElementById('latitude').value = lat;
+                document.getElementById('longitude').value = lon;
+                status.textContent = `Position détectée : ${lat}, ${lon}`;
+                // Lancer la récupération des infos automatiquement après détection
+                if (typeof getAstronomyInfo === 'function') {
+                    getAstronomyInfo();
+                }
+                },
+                (err) => {
+                status.textContent = '';
+                errorDiv.textContent = 'Impossible de détecter la position : ' + err.message;
+                },
+                { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+            );
+            }
+        </script>
         
         <button onclick="getAstronomyInfo()">Obtenir les infos !</button>
 
