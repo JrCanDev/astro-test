@@ -13,4 +13,4 @@ Or for testing, automatically deletes the container when it exits.
 
 Visit http://localhost:8080 with a browser and enjoy!
 
-This is a test project for Astro.
+This is a test project for Astro (v1.0).
